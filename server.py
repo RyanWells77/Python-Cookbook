@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, request, flash, session, redirect
 from flask_bcrypt import Bcrypt
-from forms import LoginForm 
+from forms import LoginForm, NewUserForm 
 from model import User, Favorites, Recipes, Ingredient, db, connect_to_db
 
 
@@ -20,38 +20,55 @@ bcrypt = Bcrypt(app)
 @app.route("/")
 def homepage():
 
-    return render_template("home.html")
+    user_form = NewUserForm()
+    login_form = LoginForm()
 
-@app.route("/create_user", methods = ["POST"])
+    return render_template("home.html", login_form = login_form, user_form = user_form)
+
+@app.route("/new_user", methods = ["POST"])
 def new_user():
+    user_form = NewUserForm()
 
-    user_name = request.form.get("username")
-    password = request.form.get("password")
+    if user_form.validate_on_submit():
+        user_name = user_form.username.data
+        password = user_form.password.data
 
-    user = crud.get_user_by_username(user_name)
-    if user:
-        flash(f"A user with the name {user_name} allready exists. Please choose a different name.")
-    else:
-        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-        user = crud.create_user(user_name, hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash(f"Account {user_name} created! Please login with {user_name}.")
+        existing_user = crud.get_user_by_username(user_name)
+        if existing_user:
+            flash(f"A user with the name {user_name} allready exists. Please choose a different name.")
+        else:
+            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+            user = crud.create_user(user_name, hashed_password)
+            db.session.add(user)
+            db.session.commit()
+            flash(f"Account {user_name} created! Please login with {user_name}.")
 
-    return redirect("/")
+    return render_template("home.html", user_form = user_form)
 
 
-# @app.route("/login", methods = ["GET", "POST"])
-# def login():
-#     user_name = login_form.username.data
-#     password = login_form.password.data
+@app.route("/login", methods = ["GET", "POST"])
+def login():
 
-#     user = User.query.filter_by(user_name = user_name).first()
+    login_form = LoginForm()
+
+    if login_form.validate_on_submit():
+        user_name = login_form.username.data
+        password = login_form.password.data
+
+        user = User.query.filter_by(user_name = user_name).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            session["user_id"] = user.id
+            flash(f"Login sucessful! Logged in as {user}")
+        else:
+            flash("Invalid username or password. Please try again.")
+
+    return render_template("home.html", login_form = login_form)
+
+
 
 if __name__ == "__main__":
     connect_to_db(app)
-
-    # create_database()
 
     db.create_all()
 
