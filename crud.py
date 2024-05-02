@@ -1,4 +1,4 @@
-from model import db, User, Favorites, Recipes, Ingredient, connect_to_db
+from model import db, User, Favorites, Recipes, Ingredient, RecipeRating, connect_to_db
 
 def create_user(user_name, password):
 
@@ -9,3 +9,22 @@ def create_user(user_name, password):
 def get_user_by_username(user_name):
     
     return User.query.filter(User.user_name == user_name).first()
+
+def get_recipes():
+
+    return Recipes.query.all()
+
+def get_recipe_by_name(recipe_name):
+
+    return Recipes.query.get(recipe_name)
+
+def create_rating(user, recipe, rating):
+
+    rating = RecipeRating(user = user, recipe = recipe, rating = rating)
+
+    return rating
+
+def update_rating(rating_id, new_rating):
+
+    rating = RecipeRating.query.get(rating_id)
+    # rating.rating = new_rating ### need to clarify if this will work ###

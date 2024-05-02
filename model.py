@@ -14,7 +14,6 @@ class User(db.Model):
     user_name = db.Column(db.String(255), unique = True, nullable = False)
     password = db.Column(db.String(255), nullable = False)
 
-    favorites = db.relationship("Favorites", backref = "user", lazy = True)
 
     def get_all_favorites(self):
         favorites = []
@@ -32,7 +31,6 @@ class Favorites(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey ("users.id"), nullable = False)
     recipe_id = db.Column(db.Integer, db.ForeignKey ("recipes.id"), nullable = False)
 
-    favorite_recipes = db.relationship("Recipes", backref = "favorites", lazy = True)
 
 class Recipes(db.Model):
     
@@ -44,8 +42,6 @@ class Recipes(db.Model):
     steps = db.Column(db.Text, nullable = False)
     instructions = db.Column(db.Text, nullable = False)
 
-    ingredients = db.relationship("Ingredients", backref="recipe_ingredients", lazy = True)
-    favorites = db.relationship("Favorites", backref="favorite_recipes", lazy=True)
 
 
 
@@ -65,6 +61,16 @@ def connect_to_db(app):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
+
+class RecipeRating(db.Model):
+    
+    __tablename__ = "recipe_ratings"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+
 
 
 if __name__ == "__main__":

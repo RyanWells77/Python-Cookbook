@@ -65,6 +65,11 @@ def login():
 
     return render_template("home.html", login_form = login_form)
 
+@app.route("/recipes", methods = ["GET"])
+def get_recipes_list():
+    pass
+
+
 
 
 if __name__ == "__main__":
