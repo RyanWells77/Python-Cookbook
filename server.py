@@ -18,16 +18,22 @@ bcrypt = Bcrypt(app)
 
 
 @app.route("/")
-def homepage():
+def login_page():
 
     user_form = NewUserForm()
     login_form = LoginForm()
 
-    return render_template("home.html", login_form = login_form, user_form = user_form)
+    return render_template("login.html", login_form = login_form, user_form = user_form)
+
+@app.route("/home")
+def homepage():
+
+    return redirect("home")
 
 @app.route("/new_user", methods = ["POST"])
 def new_user():
     user_form = NewUserForm()
+    login_form = LoginForm()
 
     if user_form.validate_on_submit():
         user_name = user_form.username.data
@@ -43,12 +49,12 @@ def new_user():
             db.session.commit()
             flash(f"Account {user_name} created! Please login with {user_name}.")
 
-    return render_template("home.html", user_form = user_form)
+    return render_template("login.html", user_form = user_form, login_form = login_form)
 
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
-
+    user_form = NewUserForm()
     login_form = LoginForm()
 
     if login_form.validate_on_submit():
@@ -59,14 +65,34 @@ def login():
 
         if user and bcrypt.check_password_hash(user.password, password):
             session["user_id"] = user.id
-            flash(f"Login sucessful! Logged in as {user}")
+            flash(f"Login sucessful! Logged in as {user.user_name}")
+            return redirect("/recipes")
         else:
             flash("Invalid username or password. Please try again.")
 
-    return render_template("home.html", login_form = login_form)
+    return render_template("login.html", login_form = login_form, user_form = user_form)
 
 @app.route("/recipes", methods = ["GET"])
 def get_recipes_list():
+    
+    recipes = crud.get_recipes()
+    # for recipe in recipes:
+    #     print(vars(recipe))
+    print(vars(recipes[0]))
+
+    return render_template("recipes_list.html", recipes = recipes)
+
+@app.route("/recipe/<recipe_id>")
+def recipe_details(recipe_id):
+
+    recipe = crud.get_recipe_by_id(recipe_id)
+
+    ingredients = recipe.ingredients
+    rating = recipe.recipe_rating
+    return render_template("recipe_details.html", recipe = recipe, ingredients = ingredients, rating = rating)
+
+@app.route("/add_rating/<recipe_id>", methods = ["POST, GET"])
+def add_rating():
     pass
 
 

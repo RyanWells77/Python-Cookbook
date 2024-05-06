@@ -14,9 +14,9 @@ def get_recipes():
 
     return Recipes.query.all()
 
-def get_recipe_by_name(recipe_name):
+def get_recipe_by_id(recipe_id):
 
-    return Recipes.query.get(recipe_name)
+    return Recipes.query.get(recipe_id)
 
 def create_rating(user, recipe, rating):
 

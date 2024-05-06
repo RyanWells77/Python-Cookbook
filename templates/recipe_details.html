@@ -1,0 +1,31 @@
+{% extends "base.html"%}
+
+{% block main %}
+
+<h2>{{recipe.name}}</h2>
+
+<h3>Decription:</h3>
+<h4>{{recipe.description}}</h4>
+
+{% if rating %}
+<h4>Rating: {{rating.rating}}</h4>
+    {% if rating.comment %}
+        <p>Comment: {{ rating.comment }}</p>
+    {% else %}
+        
+    {% endif %}
+{% endif %}
+
+<h3>Ingredients</h3>
+
+<ul>
+    {% for ingredient in ingredients %}
+        <li>{{ ingredient.ingredient_name }} - {{ ingredient.measurement }} {{ ingredient.unit }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Instructions</h3>
+
+    <p>{{ recipe.instructions | safe }}</p>
+
+{% endblock %}

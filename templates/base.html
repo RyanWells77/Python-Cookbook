@@ -6,9 +6,16 @@
     <title>Document</title>
 </head>
 <body>
+    
     {% block head %}
 
     {% endblock %}
+
+        {% for msg in get_flashed_messages() %}
+            <p class="flash-msg">
+            {{ msg }}
+            </p>
+        {% endfor %}
 
     {% block main %}
 

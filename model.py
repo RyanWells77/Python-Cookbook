@@ -39,10 +39,7 @@ class Recipes(db.Model):
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     description = db.Column(db.Text)
     name = db.Column(db.String, unique = True, nullable = False)
-    steps = db.Column(db.Text, nullable = False)
     instructions = db.Column(db.Text, nullable = False)
-
-
 
 
 class Ingredient(db.Model):
@@ -50,8 +47,9 @@ class Ingredient(db.Model):
     __tablename__ = "ingredients"
 
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    Ingredient_name = db.Column(db.String, nullable = False)
-    mesurement_unit = db.Column(db.String, nullable = False)
+    ingredient_name = db.Column(db.String, nullable = False)
+    measurement = db.Column(db.String, nullable = False)
+    unit = db.Column(db.String, nullable = False)
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable = False)
 
     recipe_ingredients = db.relationship("Recipes", backref = "ingredients", lazy = True)
@@ -69,7 +67,10 @@ class RecipeRating(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Integer)
+    comment = db.Column(db.String)
+
+    recipe_rating = db.relationship("Recipes", backref = "recipe_rating", lazy = True)
 
 
 
