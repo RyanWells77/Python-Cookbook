@@ -27,4 +27,21 @@ def create_rating(user, recipe, rating):
 def update_rating(rating_id, new_rating):
 
     rating = RecipeRating.query.get(rating_id)
+
+def create_recipe(description, recipe_name, instructions, ingredients_data):
+
+    recipe = Recipes(description = description, recipe_name = recipe_name, instructions = instructions )
+
+    db.session.add(recipe)
+    db.session.commit()
+
+    for ingredient_data in ingredients_data:
+        ingredient_name, measurement, unit = ingredient_data
+        ingredient = Ingredient(ingredient_name=ingredient_name, measurement=measurement, unit=unit, recipe_id=recipe.id)
+
+        db.session.add(ingredient)
+    db.session.commit()
+
+    return recipe
+
     # rating.rating = new_rating ### need to clarify if this will work ###

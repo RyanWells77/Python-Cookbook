@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h2>Add a recipe</h2>
+
+<div>
+    <form action="{{ url_for('add_recipe')}}" method = "POST">
+        {{ new_recipe_form.csrf_token }}
+        <h2>Recipe Form</h2>
+        <div>
+            {{ new_recipe_form.recipe_name.label }}: {{ new_recipe_form.recipe_name }}
+        </div>
+        <div>
+            {{ new_recipe_form.description.label }}: {{ new_recipe_form.description}}
+        </div>
+        <div>
+            {{ new_recipe_form.instructions.label }}: {{ new_recipe_form.instructions }}
+        </div>
+        <div>
+            Ingredients:
+            {% for ingredient in new_recipe_form.ingredients %}
+            <div>
+                {{ ingredient.csrf_token }}
+                {{ ingredient.ingredient_name.label }}: {{ ingredient.ingredient_name }}
+
+                {{ ingredient.measurement.label }}: {{ ingredient.measurement }}
+
+                {{ ingredient.unit.label }}: {{ ingredient.unit }}
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

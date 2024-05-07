@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, request, flash, session, redirect
 from flask_bcrypt import Bcrypt
-from forms import LoginForm, NewUserForm 
+from forms import LoginForm, NewUserForm, NewRecipe 
 from model import User, Favorites, Recipes, Ingredient, db, connect_to_db
 
 
@@ -28,7 +28,7 @@ def login_page():
 @app.route("/home")
 def homepage():
 
-    return redirect("home")
+    return render_template("home.html")
 
 @app.route("/new_user", methods = ["POST"])
 def new_user():
@@ -66,7 +66,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, password):
             session["user_id"] = user.id
             flash(f"Login sucessful! Logged in as {user.user_name}")
-            return redirect("/recipes")
+            return redirect("/home")
         else:
             flash("Invalid username or password. Please try again.")
 
@@ -95,7 +95,32 @@ def recipe_details(recipe_id):
 def add_rating():
     pass
 
+@app.route("/add_recipe", methods=["POST", "GET"])
+def add_recipe():
 
+    new_recipe_form = NewRecipe()
+
+    if new_recipe_form.validate_on_submit():
+        print("Form validation passed!")
+        description = new_recipe_form.description.data
+        recipe_name = new_recipe_form.recipe_name.data
+        instructions = new_recipe_form.instructions.data
+        ingredients_data = [
+            (
+                ingredient['ingredient_name'],
+                ingredient['measurement'],
+                ingredient['unit']
+            )
+            for ingredient in new_recipe_form.ingredients.data
+        ]
+
+        crud.create_recipe(description, recipe_name, instructions, ingredients_data)
+
+        return redirect("/home")
+    print("Form validation failed!")
+    print("Errors:", new_recipe_form.errors)  # Print validation errors
+    print("Data:", new_recipe_form.data)  # Print form data
+    return render_template("recipe_creation.html", new_recipe_form = new_recipe_form)
 
 
 if __name__ == "__main__":
