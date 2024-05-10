@@ -1,8 +1,8 @@
 
-from flask import Flask, render_template, request, flash, session, redirect
+from flask import Flask, render_template, request, flash, session, redirect, url_for, jsonify
 from flask_bcrypt import Bcrypt
 from forms import LoginForm, NewUserForm, NewRecipe 
-from model import User, Favorites, Recipes, Ingredient, db, connect_to_db
+from model import User, Favorites, Recipes, Ingredient, db, connect_to_db, RecipeRating
 
 
 
@@ -88,12 +88,30 @@ def recipe_details(recipe_id):
     recipe = crud.get_recipe_by_id(recipe_id)
 
     ingredients = recipe.ingredients
-    rating = recipe.recipe_rating
-    return render_template("recipe_details.html", recipe = recipe, ingredients = ingredients, rating = rating)
+    rating =  recipe.rating
+    user_id = session.get("user_id")
 
-@app.route("/add_rating/<recipe_id>", methods = ["POST, GET"])
-def add_rating():
-    pass
+    if user_id:
+        is_favorite = crud.is_favorite(user_id, recipe_id)
+    else: 
+        is_favorite = False
+
+    print("this is the type: ",type(rating))
+    print("this is the value for rating: ",rating)
+    return render_template("recipe_details.html", recipe = recipe, ingredients = ingredients, rating = rating, is_favorite = is_favorite)
+
+@app.route("/add_rating/<recipe_id>", methods = ["POST", "GET"])
+def add_rating(recipe_id):
+    if request.method == "POST":
+        user_id = session.get("user_id")
+        rating = int(request.form["rating"])
+        comment = request.form["comment"]
+
+        crud.add_update_rating(recipe_id, user_id, rating, comment)
+        flash("Rating and Comment added.")
+        return redirect(url_for("recipe_details", recipe_id=recipe_id))
+    elif request.method == "GET":
+        pass
 
 @app.route("/add_recipe", methods=["POST", "GET"])
 def add_recipe():
@@ -121,6 +139,21 @@ def add_recipe():
     print("Errors:", new_recipe_form.errors)  # Print validation errors
     print("Data:", new_recipe_form.data)  # Print form data
     return render_template("recipe_creation.html", new_recipe_form = new_recipe_form)
+
+@app.route("/add_update_favorite/<recipe_id>", methods=["POST"])
+def add_update_favorite(recipe_id):
+    if request.method == "POST":
+        user_id = session.get("user_id")
+        if user_id:
+            is_favorite = crud.is_favorite(user_id, recipe_id)
+            if is_favorite:
+                crud.remove_favorite(user_id, recipe_id)
+                is_favorite = False  # Recipe is no longer a favorite
+            else:
+                crud.add_favorite(user_id, recipe_id)
+                is_favorite = True  # Recipe is now a favorite
+            return jsonify({"is_favorite": is_favorite})
+    return redirect(url_for("recipe_details",recipe_id=recipe_id))
 
 
 if __name__ == "__main__":

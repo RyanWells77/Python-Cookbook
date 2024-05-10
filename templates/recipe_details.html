@@ -7,14 +7,71 @@
 <h3>Decription:</h3>
 <h4>{{recipe.description}}</h4>
 
-{% if rating %}
-<h4>Rating: {{rating.rating}}</h4>
-    {% if rating.comment %}
-        <p>Comment: {{ rating.comment }}</p>
+    <div>
+        <h3>Favorite:</h3>
+        <i id="favorite-icon" class="far fa-star" onclick="toggleFavorite()"></i> 
+    </div>
+    
+<div>
+    {% if rating %}
+    <h4>Rating: {{rating.rating}}</h4>
+        {% if rating.comment %}
+            <p>Comment: {{ rating.comment }}</p>
+        {% endif %}
+            <button id="update-rating-button">Edit Rating & Comment</button>
     {% else %}
-        
+            <button id="add-rating-button">Add Rating & Comment</button>
     {% endif %}
-{% endif %}
+
+    <div id="rating-form" style="display: none;">
+        <h3>Rate & Comment</h3>
+        <form action="/add_rating/{{ recipe.id }}" method="POST">
+            <label for="rating">Rating (1-5):</label>
+            <input type="number" name="rating" min="1" max="5" required>
+            <br>
+            <label for="comment">Comment:</label>
+            <textarea name="comment" rows="4" cols="50"></textarea>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+    
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("add-rating-button").addEventListener("click", function() {
+            console.log("event listener is working when Add Rating & Comment button is clicked.")
+            document.getElementById("rating-form").style.display = "block";
+        });
+
+        document.getElementById("update-rating-button").addEventListener("click", function() {
+            console.log("event listener is working when Edit Rating & Comment button is clicked.")
+            document.getElementById("rating-form").style.display = "block";
+        });
+
+     
+        function toggleFavorite() {
+            fetch("/add_update_favorite/{{ recipe.id }}", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    const favoriteIcon = document.getElementById("favorite-icon");
+                    if (data.is_favorite) {
+                        favoriteIcon.classList.remove("far");
+                        favoriteIcon.classList.add("fas");
+                    } else {
+                        favoriteIcon.classList.remove("fas");
+                        favoriteIcon.classList.add("far");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        }
+
+        // Attach the toggleFavorite function to the click event of the favorite icon
+        document.getElementById("favorite-icon").addEventListener("click", toggleFavorite);
+    });
+</script>
 
 <h3>Ingredients</h3>
 
@@ -29,3 +86,12 @@
     <p>{{ recipe.instructions | safe }}</p>
 
 {% endblock %}
+
+{% block footer %}
+    <script>
+        function toggleFavorite() {
+            // JavaScript code to toggle favorite status
+            console.log("Toggle favorite function called");
+        }
+    </script>
+{% endblock %}  

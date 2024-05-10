@@ -20,8 +20,8 @@
         <div>
             Ingredients:
             {% for ingredient in new_recipe_form.ingredients %}
-            <div>
-                {{ ingredient.csrf_token }}
+            <div id="ingredient-fields">
+                <!-- {{ ingredient.csrf_token }} -->
                 {{ ingredient.ingredient_name.label }}: {{ ingredient.ingredient_name }}
 
                 {{ ingredient.measurement.label }}: {{ ingredient.measurement }}
@@ -29,6 +29,31 @@
                 {{ ingredient.unit.label }}: {{ ingredient.unit }}
             </div>
             {% endfor %}
+            <button type="button" onclick="addIngredientField()">Add Ingredient</button>
+
+            <script>
+            function addIngredientField() {
+            var ingredientFields = document.getElementById('ingredient-fields');
+            var newIngredientField = document.createElement('div');
+            newIngredientField.innerHTML = `
+                <label for="new_ingredient_name">Ingredient Name: </label>
+                <input type="text" name="new_ingredient_name">
+                <label for="new_measurement">Measurement: </label>
+                <input type="text" name="new_measurement">
+                <label for="new_unit">Unit: </label>
+                <select name="new_unit">
+                    <option value="lb">lb</option>
+                    <option value="oz">oz</option>
+                    <option value="cup">cup</option>
+                    <option value="tbs">tbs</option>
+                    <option value="tsp">tsp</option>
+                    <option value="qt">qt</option>
+                    <option value="pinch">pinch</option>
+                </select>
+            `;
+            ingredientFields.appendChild(newIngredientField);
+            }
+            </script>
         </div>
         <button type="submit">Submit</button>
     </form>
