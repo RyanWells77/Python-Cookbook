@@ -41,6 +41,10 @@ class Recipes(db.Model):
     name = db.Column(db.String, unique = True, nullable = False)
     instructions = db.Column(db.Text, nullable = False)
 
+    #### adding a backref to Favorites model. I hope this dosn't break anything ####
+
+    favorites = db.relationship("Favorites", backref="recipe", lazy=True)
+
 
 class Ingredient(db.Model):
     

@@ -28,7 +28,9 @@ def login_page():
 @app.route("/home")
 def homepage():
 
-    return render_template("home.html")
+    user_id = session.get("user_id")
+    print(f"user id is: ", user_id)
+    return render_template("home.html", user_id = user_id)
 
 @app.route("/new_user", methods = ["POST"])
 def new_user():
@@ -177,6 +179,15 @@ def add_update_favorite(recipe_id):
             crud.add_favorite(user_id, recipe_id)
             is_favorite = True  # Recipe is now a favorite
         return jsonify({"is_favorite": is_favorite})
+    
+@app.route("/favorites/<user_id>", methods = ["GET"])
+def get_favorites_list(user_id):
+    
+    favorites = crud.get_favorites(user_id)
+    #### trying to print recipe name of favorite recipes for debugging ####
+    print("This is suposed to be the recipe name", favorites[0].recipe.name)
+
+    return render_template("favorites_list.html", favorites = favorites )
 
 
 

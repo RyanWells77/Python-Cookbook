@@ -61,6 +61,12 @@ def add_update_rating(recipe_id, user_id, rating, comment):
 
     db.session.commit()
 
+def get_favorites(user_id):
+
+    favorites_list = Favorites.query.filter_by(user_id = user_id).all()
+
+    return favorites_list
+
 def is_favorite(user_id, recipe_id):
 
     favorite = Favorites.query.filter_by(user_id = user_id, recipe_id = recipe_id).first()

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block head %}
+<h1>This confirms you are on the favorites_list html page</h1>
+{% endblock %}
+
+{% block main %}
+<h1>Favorite Recipes</h1>
+<ul>
+    {% for favorite in favorites %}
+      <li>
+        <a href="/recipe/{{ favorite.recipe.id }}">
+          {{ favorite.recipe.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
