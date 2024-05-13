@@ -61,7 +61,7 @@ def connect_to_db(app):
     db.init_app(app)
 
 class RecipeRating(db.Model):
-    
+     
     __tablename__ = "recipe_ratings"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

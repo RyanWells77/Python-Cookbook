@@ -14,10 +14,13 @@ def get_recipes():
 
     return Recipes.query.all()
 
-def get_recipe_by_id(recipe_id):
+def get_recipe_by_id(recipe_id, user_id):
 
+    
     recipe = Recipes.query.get(recipe_id)
     recipe.rating = RecipeRating.query.filter_by(recipe_id = recipe_id).first()
+    recipe.favorite = Favorites.query.filter_by(user_id = user_id, recipe_id = recipe_id).first()
+    print(recipe.favorite)
 
     return recipe
 
@@ -28,9 +31,11 @@ def create_recipe(description, recipe_name, instructions, ingredients_data):
     db.session.add(recipe)
     db.session.commit()
 
+    recipe_id = recipe.id
+
     for ingredient_data in ingredients_data:
         ingredient_name, measurement, unit = ingredient_data
-        ingredient = Ingredient(ingredient_name=ingredient_name, measurement=measurement, unit=unit, recipe_id=recipe.id)
+        ingredient = Ingredient(ingredient_name=ingredient_name, measurement=measurement, unit=unit, recipe_id=recipe_id)
         db.session.add(ingredient)
 
     db.session.commit()
@@ -59,22 +64,22 @@ def add_update_rating(recipe_id, user_id, rating, comment):
 def is_favorite(user_id, recipe_id):
 
     favorite = Favorites.query.filter_by(user_id = user_id, recipe_id = recipe_id).first()
+    print("favorite" ,favorite)
     return favorite is not None
 
 def add_favorite(user_id, recipe_id):
 
     favorite = Favorites(user_id = user_id, recipe_id = recipe_id)
-    if not favorite:
-        favorite = Favorites(user_id = user_id, recipe_id = recipe_id)
-        db.session.add(favorite)
-        db.session.commit()
+
+    db.session.add(favorite)
+    db.session.commit()
 
 def remove_favorite(user_id, recipe_id):
 
     favorite = Favorites.query.filter_by(user_id = user_id, recipe_id = recipe_id).first()
-    if not favorite:
-        db.session.delete(favorite)
-        db.session.commit()
+
+    db.session.delete(favorite)
+    db.session.commit()
 
 
 

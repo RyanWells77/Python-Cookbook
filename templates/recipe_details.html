@@ -9,7 +9,8 @@
 
     <div>
         <h3>Favorite:</h3>
-        <i id="favorite-icon" class="far fa-star" onclick="toggleFavorite()"></i> 
+        <input hidden value="{{ recipe.id }}" id="hidden_id">
+        <i id="favorite-icon" class="far fa-star" data-is-favorite="{{ is_favorite }}"></i> 
     </div>
     
 <div>
@@ -37,41 +38,7 @@
     </div>
 </div>
     
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("add-rating-button").addEventListener("click", function() {
-            console.log("event listener is working when Add Rating & Comment button is clicked.")
-            document.getElementById("rating-form").style.display = "block";
-        });
 
-        document.getElementById("update-rating-button").addEventListener("click", function() {
-            console.log("event listener is working when Edit Rating & Comment button is clicked.")
-            document.getElementById("rating-form").style.display = "block";
-        });
-
-     
-        function toggleFavorite() {
-            fetch("/add_update_favorite/{{ recipe.id }}", { method: "POST" })
-                .then(response => response.json())
-                .then(data => {
-                    const favoriteIcon = document.getElementById("favorite-icon");
-                    if (data.is_favorite) {
-                        favoriteIcon.classList.remove("far");
-                        favoriteIcon.classList.add("fas");
-                    } else {
-                        favoriteIcon.classList.remove("fas");
-                        favoriteIcon.classList.add("far");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                });
-        }
-
-        // Attach the toggleFavorite function to the click event of the favorite icon
-        document.getElementById("favorite-icon").addEventListener("click", toggleFavorite);
-    });
-</script>
 
 <h3>Ingredients</h3>
 
@@ -88,10 +55,5 @@
 {% endblock %}
 
 {% block footer %}
-    <script>
-        function toggleFavorite() {
-            // JavaScript code to toggle favorite status
-            console.log("Toggle favorite function called");
-        }
-    </script>
+<script src="/static/favorite.js"></script>
 {% endblock %}  

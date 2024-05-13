@@ -76,28 +76,45 @@ def login():
 def get_recipes_list():
     
     recipes = crud.get_recipes()
+
+    #### print statments for debugging ####
     # for recipe in recipes:
     #     print(vars(recipe))
-    print(vars(recipes[0]))
+    # print(vars(recipes[0]))
 
     return render_template("recipes_list.html", recipes = recipes)
 
 @app.route("/recipe/<recipe_id>")
 def recipe_details(recipe_id):
 
-    recipe = crud.get_recipe_by_id(recipe_id)
+    user_id = session.get("user_id")
+
+    #### Use to get the name attached to the id ####
+    # if user_id:
+    #     user = User.query.get(user_id)
+    #     if user:
+    #         user_name = user.user_name
+    #         print(user_name)
+
+    recipe = crud.get_recipe_by_id(recipe_id, user_id)
+
+    is_favorite = False
+    if user_id:
+        is_favorite = crud.is_favorite(user_id, recipe_id)
 
     ingredients = recipe.ingredients
     rating =  recipe.rating
-    user_id = session.get("user_id")
+  
 
-    if user_id:
-        is_favorite = crud.is_favorite(user_id, recipe_id)
-    else: 
-        is_favorite = False
+    # if user_id:
+    #     is_favorite = crud.is_favorite(user_id, recipe_id)
+    # else: 
+    #     is_favorite = False
 
-    print("this is the type: ",type(rating))
-    print("this is the value for rating: ",rating)
+    #### print statments for debugging ####
+    # print("this is the type: ",type(rating))
+    # print("this is the value for rating: ",rating)
+
     return render_template("recipe_details.html", recipe = recipe, ingredients = ingredients, rating = rating, is_favorite = is_favorite)
 
 @app.route("/add_rating/<recipe_id>", methods = ["POST", "GET"])
@@ -119,7 +136,8 @@ def add_recipe():
     new_recipe_form = NewRecipe()
 
     if new_recipe_form.validate_on_submit():
-        print("Form validation passed!")
+        #### print statment for debugging ####
+        # print("Form validation passed!")
         description = new_recipe_form.description.data
         recipe_name = new_recipe_form.recipe_name.data
         instructions = new_recipe_form.instructions.data
@@ -132,28 +150,34 @@ def add_recipe():
             for ingredient in new_recipe_form.ingredients.data
         ]
 
+        print("Ingredints data: ", ingredients_data)
         crud.create_recipe(description, recipe_name, instructions, ingredients_data)
 
         return redirect("/home")
-    print("Form validation failed!")
-    print("Errors:", new_recipe_form.errors)  # Print validation errors
-    print("Data:", new_recipe_form.data)  # Print form data
+    #### print statments for debugging ####
+    # print("Form validation failed!")
+    # print("Errors:", new_recipe_form.errors)  # Print validation errors
+    # print("Data:", new_recipe_form.data)  # Print form data
     return render_template("recipe_creation.html", new_recipe_form = new_recipe_form)
 
-@app.route("/add_update_favorite/<recipe_id>", methods=["POST"])
+
+
+@app.route("/add_update_favorite/<recipe_id>")
 def add_update_favorite(recipe_id):
-    if request.method == "POST":
-        user_id = session.get("user_id")
-        if user_id:
-            is_favorite = crud.is_favorite(user_id, recipe_id)
-            if is_favorite:
-                crud.remove_favorite(user_id, recipe_id)
-                is_favorite = False  # Recipe is no longer a favorite
-            else:
-                crud.add_favorite(user_id, recipe_id)
-                is_favorite = True  # Recipe is now a favorite
-            return jsonify({"is_favorite": is_favorite})
-    return redirect(url_for("recipe_details",recipe_id=recipe_id))
+
+    user_id = session.get("user_id")
+
+    if user_id:
+        is_favorite = crud.is_favorite(user_id, recipe_id)
+
+        if is_favorite:
+            crud.remove_favorite(user_id, recipe_id)
+            is_favorite = False  # Recipe is no longer a favorite
+        else:
+            crud.add_favorite(user_id, recipe_id)
+            is_favorite = True  # Recipe is now a favorite
+        return jsonify({"is_favorite": is_favorite})
+
 
 
 if __name__ == "__main__":
