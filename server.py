@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request, flash, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, flash, session, redirect, url_for, jsonify 
 from flask_bcrypt import Bcrypt
 from forms import LoginForm, NewUserForm, NewRecipe 
 from model import User, Favorites, Recipes, Ingredient, db, connect_to_db, RecipeRating
@@ -105,13 +105,9 @@ def recipe_details(recipe_id):
         is_favorite = crud.is_favorite(user_id, recipe_id)
 
     ingredients = recipe.ingredients
-    rating =  recipe.rating
-  
-
-    # if user_id:
-    #     is_favorite = crud.is_favorite(user_id, recipe_id)
-    # else: 
-    #     is_favorite = False
+    rating = None
+    if user_id:
+        rating = RecipeRating.query.filter_by(recipe_id = recipe_id, user_id = user_id).first()
 
     #### print statments for debugging ####
     # print("this is the type: ",type(rating))
@@ -132,36 +128,33 @@ def add_rating(recipe_id):
     elif request.method == "GET":
         pass
 
-@app.route("/add_recipe", methods=["POST", "GET"])
+@app.route("/add_recipe", methods=["GET","POST"])
 def add_recipe():
+    if request.method == "POST":
+        # Extract recipe data from the JSON
+        data = request.get_json()
 
-    new_recipe_form = NewRecipe()
-
-    if new_recipe_form.validate_on_submit():
         #### print statment for debugging ####
-        # print("Form validation passed!")
-        description = new_recipe_form.description.data
-        recipe_name = new_recipe_form.recipe_name.data
-        instructions = new_recipe_form.instructions.data
-        ingredients_data = [
-            (
-                ingredient['ingredient_name'],
-                ingredient['measurement'],
-                ingredient['unit']
-            )
-            for ingredient in new_recipe_form.ingredients.data
-        ]
+        # print("this is the data in the request: ", data)
 
-        print("Ingredints data: ", ingredients_data)
-        crud.create_recipe(description, recipe_name, instructions, ingredients_data)
+        recipe_name = data.get('name')
+        description = data.get('description')
+        instructions = data.get('instructions')
 
-        return redirect("/home")
-    #### print statments for debugging ####
-    # print("Form validation failed!")
-    # print("Errors:", new_recipe_form.errors)  # Print validation errors
-    # print("Data:", new_recipe_form.data)  # Print form data
-    return render_template("recipe_creation.html", new_recipe_form = new_recipe_form)
+        # Extract ingredients data from the JSON
+        ingredients_data = data.get('ingredients')
 
+        # Validate the presence of required fields
+        if not (description and recipe_name and instructions and ingredients_data):
+            return jsonify({'error': 'Incomplete data. Required fields are missing.'}), 400
+
+        # Insert the recipe and ingredients into the database
+        try:
+            recipe = crud.create_recipe(description, recipe_name, instructions, ingredients_data)
+            return jsonify({'message': 'Recipe added successfully', 'recipe_id': recipe.id}), 201
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return redirect("/home")
 
 
 @app.route("/add_update_favorite/<recipe_id>")
@@ -184,8 +177,9 @@ def add_update_favorite(recipe_id):
 def get_favorites_list(user_id):
     
     favorites = crud.get_favorites(user_id)
+
     #### trying to print recipe name of favorite recipes for debugging ####
-    print("This is suposed to be the recipe name", favorites[0].recipe.name)
+    # print("This is suposed to be the recipe name", favorites[0].recipe.name)
 
     return render_template("favorites_list.html", favorites = favorites )
 

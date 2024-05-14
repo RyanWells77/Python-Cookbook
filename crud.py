@@ -20,7 +20,8 @@ def get_recipe_by_id(recipe_id, user_id):
     recipe = Recipes.query.get(recipe_id)
     recipe.rating = RecipeRating.query.filter_by(recipe_id = recipe_id).first()
     recipe.favorite = Favorites.query.filter_by(user_id = user_id, recipe_id = recipe_id).first()
-    print(recipe.favorite)
+    #### print for debugging ####
+    # print(recipe.favorite)
 
     return recipe
 
@@ -34,7 +35,11 @@ def create_recipe(description, recipe_name, instructions, ingredients_data):
     recipe_id = recipe.id
 
     for ingredient_data in ingredients_data:
-        ingredient_name, measurement, unit = ingredient_data
+        ingredient_name = ingredient_data.get('ingredient_name')
+        measurement = ingredient_data.get('measurement')
+        unit = ingredient_data.get('unit')
+
+            # Create and add the Ingredient to the session
         ingredient = Ingredient(ingredient_name=ingredient_name, measurement=measurement, unit=unit, recipe_id=recipe_id)
         db.session.add(ingredient)
 
@@ -70,7 +75,8 @@ def get_favorites(user_id):
 def is_favorite(user_id, recipe_id):
 
     favorite = Favorites.query.filter_by(user_id = user_id, recipe_id = recipe_id).first()
-    print("favorite" ,favorite)
+    #### print for debugging ####
+    # print("favorite" ,favorite)
     return favorite is not None
 
 def add_favorite(user_id, recipe_id):

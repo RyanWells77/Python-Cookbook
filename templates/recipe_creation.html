@@ -5,40 +5,28 @@
 <h2>Add a recipe</h2>
 
 <div>
-    <form action="{{ url_for('add_recipe')}}" method = "POST">
-        {{ new_recipe_form.csrf_token }}
+    <form id="recipe-form">
         <h2>Recipe Form</h2>
         <div>
-            {{ new_recipe_form.recipe_name.label }}: {{ new_recipe_form.recipe_name }}
+            <label for="recipe_name">Recipe Name:</label>
+            <input type="text" id="recipe_name">
         </div>
         <div>
-            {{ new_recipe_form.description.label }}: {{ new_recipe_form.description}}
+            <label for="description">Description:</label>
+            <textarea id="description"></textarea>
         </div>
         <div>
-            {{ new_recipe_form.instructions.label }}: {{ new_recipe_form.instructions }}
+            <label for="instructions">Instructions:</label>
+            <textarea id="instructions"></textarea>
         </div>
-        <div>
-            Ingredients:
-            {% for ingredient in new_recipe_form.ingredients %}
-            <div id="ingredient-fields">
-                {{ ingredient.csrf_token }}
-                {{ ingredient.ingredient_name.label }}: {{ ingredient.ingredient_name }}
-
-                {{ ingredient.measurement.label }}: {{ ingredient.measurement }}
-
-                {{ ingredient.unit.label }}: {{ ingredient.unit }}
-            </div>
-            {% endfor %}
-            <button type="button" onclick="addIngredientField()">Add Ingredient</button>
-
+        <div id="ingredient-fields">
+            <!-- Ingredient fields will be added dynamically -->
         </div>
+        <button type="button" onclick="addIngredientField()">Add Ingredient</button>
         <button type="submit">Submit</button>
     </form>
 </div>
 {% endblock %}
 {% block footer %}
 <script src="/static/recipe_creation.js"></script>
-<script>
-    const crsfToken = "{{new_recipe_form.csrf_token._value()}}"
-</script>
 {% endblock %}  

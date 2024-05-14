@@ -27,9 +27,6 @@ if (update) {
 //     document.getElementById("rating-form").style.display = "block";
 // });
 
-
-
-
 document.addEventListener("DOMContentLoaded", function () {
     function toggleFavorite() {
         console.log("Toggle favorite function called");
